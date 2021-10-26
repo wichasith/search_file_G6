@@ -1,18 +1,25 @@
 import java.util.regex.*;  
 
-String[] list = {} ; 
-
 void setup() {
-  String path = sketchPath();
-  String search = "shubu";
-  String[] Vowels = { "a", "e" , "i" , "o" , "u" } ;
+  String path = "/home/fulla/Desktop/year3term1/processing/search_file";
+  String search = "dog";
+  ArrayList<String> list = new ArrayList<String>() ;
+  String[] listToStringArray = {} ;
+  String[] Vowels = { "a" , "e" , "i" , "o" , "u" } ;
   Boolean found = false ;
+  int count = 0 ;
   
-  search = search.toLowerCase();
+  listFileNames(path,search,list) ;
   
-  listFileNames(path,search) ;
   
-  saveStrings("save.txt", list);
+  //print(list) ;
+  
+  for(int i = 0 ; i < list.size() ; i ++){
+    listToStringArray = append(listToStringArray, list.get(i));
+  }
+  
+  
+  saveStrings("save.txt", listToStringArray);
   
   //check all like /home/fulla/Desktop/year3term1/processing/search_file/animal
   
@@ -21,53 +28,89 @@ void setup() {
     //lines[i] = lines[i].toLowerCase();
     if(lines[i].equals(search)){
           println(lines[i]) ;
+          found = true ;
         }
   }
   
   //check one word with correct word
   
+  String lowersearch = search.toLowerCase();
   for (int i = 0 ; i < lines.length; i++) {
       String[] splits = split(lines[i], '/');
       for (int j = 0 ; j < splits.length; j++) {
         splits[j] = splits[j].toLowerCase();
-        if(splits[j].equals(search)){
+        if(splits[j].equals(lowersearch)){
           println(lines[i]) ;
           found = true ;
         }
       }
   }
   
-  //check one word when incorrect vowels
+  //check one word when incorrect vowels by using regex
   
   if (found == false) {
   for(int a = 0 ; a < Vowels.length ; a++){
-    String newSearch = search.replace(Vowels[a],".");
+    String newSearch = lowersearch.replace(Vowels[a],".");
     for (int i = 0 ; i < lines.length; i++) {
       String[] splits = split(lines[i], '/');
       for (int j = 0 ; j < splits.length; j++) {
         splits[j] = splits[j].toLowerCase();
         if(Pattern.matches(newSearch, splits[j])){
             println(lines[i]) ;
+            count ++ ;
           }
         }
     }
   }
+  if(count > 0 ){
+    found = true ;
+  }
+  }
+  
+  if(found == false){
+    String searchCheckCharacter = "[" + search + "]+" ;
+    for (int i = 0 ; i < lines.length; i++) {
+      String[] splits = split(lines[i], '/');
+      for (int j = 0 ; j < splits.length; j++) {
+          splits[j] = splits[j].toLowerCase();
+          if(Pattern.matches(searchCheckCharacter, splits[j])){
+              println(lines[i]) ;
+              count ++ ;
+            }
+          }
+    }
+    if(count > 0 ){
+    found = true ;
+  }
+  }
+  
+  if(found == true){
+    println("---------------- We found & End Process ---------------") ;
+  }
+  if(found == false){
+    println("------- We didn't find Sorry & The Process was End----------") ;
   }
 }
 
 void draw() {
-  
 }
 
-void listFileNames(String dir , String search) {
+void listFileNames(String dir , String search , ArrayList<String> list) {
   File file = new File(dir);
   if (file.isDirectory()) {
     String names[] = file.list();
+    
     if(names != null){
+      //println(dir + "/" ) ;
+      
       for (int i = 0; i < names.length; i++){
-        list = append(list , dir + "/" + names[i]) ;
-        listFileNames(dir + "/" + names[i],search) ;
+        //println(dir + "/" + names[i]) ;
+        list.add(dir + "/" + names[i]) ;
+        
+        listFileNames(dir + "/" + names[i],search,list) ;
+      
       }
-    }
+      }
+  
   } 
 }
